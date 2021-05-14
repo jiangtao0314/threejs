@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <script>
+        //场景
+        const scene = new THREE.Scene();
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000)
+        camera.position.set(0, 0, 200)
+
+        //渲染器 
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d3ff, 1) //设置背景颜色
+        document.body.appendChild(renderer.domElement)
+
+
+        //鼠标操作三位场景 
+        let controls = new THREE.OrbitControls(camera, renderer.domElement)
+
+
+        //正方体
+        const geometry = new THREE.BoxBufferGeometry(100, 100, 100);
+
+
+        // //材质对象   网络模型材质
+        // // MeshBasicMaterial 不受方向光源影响 没有棱角感
+        // const meterial = new THREE.MeshBasicMaterial({
+        //     color: 0x0000ff,
+        // })
+
+        // //网络模型对象
+        // let mesh = new THREE.Mesh(geometry, meterial);
+        // scene.add(mesh)
+
+
+        // MeshLambertMaterial   漫反射 
+        // const meterial = new THREEMeshLambertMaterial({
+        //     color: 0x0000ff,
+        // })
+
+        // //网络模型对象
+        // let mesh = new THREE.Mesh(geometry, meterial);
+        // scene.add(mesh)
+
+
+
+        // MeshPhongMaterial   高光反射 镜面反射
+        const meterial = new THREE.MeshPhongMaterial({
+            color: 0x0000ff,
+            specular: 0x444444, //高光部分的颜色
+            shininess: 20, //高光部分的亮度 默认30
+            wireframe: true, //网格模型以线条的模式渲染
+        })
+
+        //网络模型对象
+        let mesh = new THREE.Mesh(geometry, meterial);
+        scene.add(mesh)
+
+
+
+
+        //辅助线
+        let axesHelper = new THREE.AxesHelper(140);
+        scene.add(axesHelper)
+
+
+
+
+        //环境光 
+        let ambient = new THREE.AmbientLight(0x444444)
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff)
+        point.position.set(200, 200, 200)
+        scene.add(point)
+
+        //渲染
+        let animate = function() {
+            requestAnimationFrame(animate)
+            mesh.rotation.y += 0.01;
+            renderer.render(scene, camera)
+        }
+        animate()
+    </script>
+</body>
+
+</html>

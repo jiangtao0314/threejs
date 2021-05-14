@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+    <script src="./loaders/FBXLoader.js"></script>
+    <script src="./loaders/GLTFLoader.js"></script>
+    <script src="./loaders/DRACOLoader.js"></script>
+
+    <!-- 辅助文件 -->
+    <script src="./fflate.min.js"></script>
+
+</head>
+
+<body>
+    <script>
+        //场景
+        const scene = new THREE.Scene();
+        let modelMesh = [];
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100000)
+        camera.position.set(0, 0, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1);
+        renderer.setPixelRatio(window.devicePixelRatio * 2)
+        renderer.antualias = true
+        document.body.appendChild(renderer.domElement);
+
+
+        //混合器变量
+        let mixer = null;
+
+
+
+        const loader = new THREE.GLTFLoader();
+        let dracoLoader = new THREE.DRACOLoader();
+        dracoLoader.setDecoderPath( './three/js/libs/draco/gltf/' );
+        loader.setDRACOLoader(dracoLoader);
+
+        loader.load('./3_Draco.gltf',function ( gltf ) {
+        
+        
+		    gltf.animations; // Array<THREE.AnimationClip>
+		    gltf.scene; // THREE.Group
+		    gltf.scenes; // Array<THREE.Group>
+		    gltf.cameras; // Array<THREE.Camera>
+		    gltf.asset; // Object
+        // console.log(gltf.scene);
+        gltf.scene.children.forEach((item) =>{
+            if(item.name == 'zhulouboli'){
+                item.material = new THREE.MeshPhongMaterial({
+                            color:0x9999999,
+                            side:THREE.FrontSide,
+                            blending:THREE.AdditiveBlending,
+                        });
+            }
+        })
+        gltf.scene.name = 'lou'
+        modelMesh = gltf.scene.children;
+        console.log(modelMesh);
+		scene.add( gltf.scene);
+        
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+        
+	},
+	// called when loading has errors
+	// function ( error ) {
+
+	// 	console.log( 'An error happened' );
+
+	// }
+);
+
+
+
+
+
+
+
+        //鼠标操作三维场景
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.addEventListener('change', function() {
+            renderer.render(scene, camera)
+        })
+
+        // 环境光
+        let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0x999999)
+        point.position.set(400, 200, 300);
+        scene.add(point)
+
+         //点光源
+         let point2 = new THREE.PointLight(0x999999)
+        point2.position.set(-400, 200, -300);
+        scene.add(point2)
+
+
+        let helper = new THREE.PointLightHelper(point,100)
+        scene.add(helper)
+
+
+        let mouse = {}
+
+        window.addEventListener('click',(e)=>{
+          mouse.x = (e.clientX/window.innerWidth) * 2 - 1;
+          mouse.y = -(e.clientY/window.innerHeight) * 2 + 1;
+          let raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(mouse,camera);
+          let intersects = raycaster.intersectObjects(modelMesh);
+          console.log(intersects);
+          if(intersects.length > 0){
+            let SELETED = intersects[0].object;
+            let intersected = intersects[0].object;
+          if(intersected.type == 'Group' && intersected.name !== '平面'){
+              console.log(intersected);
+          }
+
+          }
+          
+        })
+
+
+
+        let clock = new THREE.Clock();
+
+        //渲染
+        function animate() {
+            requestAnimationFrame(animate)
+            renderer.render(scene, camera)
+            if (mixer != null) {
+                mixer.update(clock.getDelta())
+            }
+
+        }
+        animate()
+            // console.log(scene.children);
+    </script>
+</body>
+
+</html>

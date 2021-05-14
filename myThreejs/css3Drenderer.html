@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>css2d/css3d</title>
+    <style>
+        .box1{
+            position: absolute;
+            padding: 10px 15px;
+            background-color: rgba(0,0,0,0.8);
+            color:#fff;
+            border:1px solid #3cc47c;
+        }
+        .box2{
+            position: absolute;
+            color:#fff;
+            background-color: rgba(0, 127, 127, 0.447);
+            box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+            border: 1px solid rgba(127,255,255,0.25);
+        }
+        .box2 .ys-con{
+            font-weight: bold;
+            color: rgba(255,255,255,0.75);
+            text-shadow: 0 0 10px rgba(0,255,255,0.95);
+            user-select: none;
+        }
+        *{
+          margin: 0;
+          padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="ys-absolute-container box" id="box" style="overflow: hidden"></div>
+<div style="display: none">
+    <div class="box1" id="box1">
+        这是一个文本
+    </div>
+    <div class="box2" id="box2">
+        <div class="ys-block">
+            asda
+            <div class="ys-tit-sm"><span>标题1111111111</span></div>
+            <div class="ys-con">
+                这是一个精彩的文本
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script src="../three.min.js"></script>
+<script src="../OrbitControls.js"></script>
+<script src="./js/CSS2DRenderer.js"></script>
+<script src="./js/CSS3DRenderer.js"></script>
+<script>
+    const el = document.getElementById('box')
+    console.log(el);
+
+    //场景
+    const scene = new THREE.Scene();
+
+    //相机
+    const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000)
+    camera.position.set(100, 100, 200);
+
+    //渲染器
+    const renderer = new THREE.WebGLRenderer()
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    //鼠标操作三维场景
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    renderer.setPixelRatio( window.devicePixelRatio );
+
+  
+
+
+    /*  ***********/
+    //创建一个 2d  -- 其大小不会随镜头改变而改变
+    // const css2DRenderer = new THREE.CSS2DRenderer()
+    // css2DRenderer.setSize( window.innerWidth, window.innerHeight  )
+    // const label2d = new THREE.CSS2DObject( document.getElementById("box1") )
+    // label2d.position.set(0,100,100)
+    // scene.add(label2d)
+    // css2DRenderer.domElement.style.position = 'absolute'
+    // css2DRenderer.domElement.style.top = 0
+    // css2DRenderer.domElement.style.pointerEvents = "none"
+    // document.querySelector(".box").append(css2DRenderer.domElement)
+
+
+
+    //创建一个 3d  -- 其大小会随镜头改变而改变
+    const css3DRenderer = new THREE.CSS3DRenderer()
+    css3DRenderer.setSize( window.innerWidth, window.innerHeight  )
+    const label3d = new THREE.CSS3DObject( document.getElementById("box2") )
+    label3d.position.set(0,100,100)
+    scene.add( label3d )
+    // label3d.scale.set(0.05,0.05,0.05) //我们可以通过控制box的大小来控制label3d的大小
+    css3DRenderer.domElement.style.position = 'absolute'
+    css3DRenderer.domElement.style.top = 0
+    css3DRenderer.domElement.style.pointerEvents = "none"
+    document.querySelector(".box").append(css3DRenderer.domElement);
+
+    let a = 1;
+    setInterval(() => {
+      a += 1
+      document.querySelector('.ys-con').innerHTML = a
+    }, 1000);
+
+
+    window.addEventListener('resize',()=>{
+      css2DRenderer.setSize( el.offsetWidth, el.offsetHeight )
+      css3DRenderer.setSize( el.offsetWidth, el.offsetHeight )
+    })
+
+    const clock = new THREE.Clock()
+
+    /*  ***********/
+
+    function render() {
+        controls.update(clock.getDelta())
+        renderer.render( scene,camera)
+        requestAnimationFrame(render)
+        // css2DRenderer.render( scene, camera )
+        css3DRenderer.render( scene, camera )
+
+    }
+    render()
+</script>
+</html>

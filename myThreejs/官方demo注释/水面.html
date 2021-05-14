@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - shaders - ocean</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+
+		<div id="container"></div>
+		<div id="info">
+			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> - webgl ocean
+		</div>
+
+		<script type="module">
+
+			import * as THREE from '../build/three.module.js';
+
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import { Water } from './jsm/objects/Water.js';
+	
+
+			let container
+			let camera, scene, renderer;
+			let controls, water, mesh;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.getElementById( 'container' );
+
+				//
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio);
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setClearColor(0xeeeeee, 1);
+				container.appendChild( renderer.domElement );
+
+				//场景
+				scene = new THREE.Scene();
+				camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 1, 20000 );
+				camera.position.set( 30, 30, 100 );
+
+
+				// 水的形状 
+
+
+				// 几何体
+
+				const x = 0, y = 0;
+
+				const heartShape = new THREE.Shape();
+
+				heartShape.moveTo( x + 50, y + 50 );
+				heartShape.bezierCurveTo( x + 50, y + 50, x + 40, y, x, y );
+				heartShape.bezierCurveTo( x - 60, y, x - 60, y + 70,x - 60, y + 70 );
+				heartShape.bezierCurveTo( x - 60, y + 110, x - 30, y + 150.4, x + 50, y + 190 );
+				heartShape.bezierCurveTo( x + 120, y + 150.4, x + 160, y + 110, x + 160, y + 70 );
+				heartShape.bezierCurveTo( x + 160, y + 70, x + 160, y, x + 100, y );
+				heartShape.bezierCurveTo( x + 70, y, x + 50, y + 50, x + 50, y + 50 );
+
+				const waterGeometry = new THREE.ShapeGeometry( heartShape );
+
+				//=-----------------------------------------------------------------------------------------------------------------------------
+				water = new Water(waterGeometry,	{textureWidth: 200,textureHeight: 200,waterNormals: new THREE.TextureLoader().load( 'textures/waternormals.jpg', function ( texture ) {
+							texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+						}),
+						// waterColor: 0x001e0f,
+						waterColor: 'skyblue',
+					}
+				);
+
+				water.rotation.x = - Math.PI / 2;
+				scene.add( water )
+
+
+
+				// 环境光
+        let ambient = new THREE.AmbientLight(0xffffff);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff)
+        point.position.set(4000, 2000, 3000);
+        scene.add(point)
+
+
+
+
+				//控制器
+
+				controls = new OrbitControls( camera, renderer.domElement );
+
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			//相机自适应
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render();
+			}
+
+
+			function render() {
+				const time = performance.now() * 0.001;
+				water.material.uniforms[ 'time' ].value += 1.0 / 60.0;
+				renderer.render( scene, camera );
+			}
+
+		</script>
+	</body>
+</html>

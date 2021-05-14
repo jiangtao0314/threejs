@@ -1,0 +1,86 @@
+<html>
+
+<head>
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="../three.min.js"></script>
+    <!-- 引入鼠标控制场景文件  路径为three.js/examples/js/contorls -->
+    <script src="../OrbitControls.js"></script>
+    <script>
+        //场景
+        const scene = new THREE.Scene();
+
+        //相机 
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        // 渲染器
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d3ff, 1) //设置背景颜色
+        document.body.appendChild(renderer.domElement);
+
+
+
+        // 创建立方体       
+        const geometry = new THREE.BoxGeometry(100, 100, 100);
+
+        // 设置材质(颜色)
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x00ff00
+        });
+
+        //设置网格模型对象
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube); //添加到场景中
+        // cube.translateX(5)
+        //移动相机
+        // camera.position.z = 5;
+        //x轴 Y轴 Z轴
+        camera.position.set(0, 0, 200)
+
+
+        // const render = function() {
+        //   每间隔10毫秒就运行一次render函数来覆盖原来的图像
+        //     cube.rotateY(0.01);  每次绕Y轴旋转0.01度
+        //     renderer.render(scene, camera);
+        // }
+        // setInterval(render, 10)
+
+        //启动鼠标操作三位场景旋转缩放
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        console.log(controls);
+
+
+        let t0 = new Date();
+        const animate = function() {
+            let t1 = new Date()
+            let t = t1 - t0;
+            t0 = t1;
+            // console.log(t);
+            // 使在每次屏幕刷新时对场景进行绘制的循环  普遍为60帧/秒
+            // 当用户切换到其它的标签页时，它会暂停 比起setInterval性能更高
+            requestAnimationFrame(animate);
+
+            // 这里的代码每帧都会执行一次  使X轴或Y轴进行旋转效果
+            // cube.rotation.x += 0.01;
+            cube.rotation.y += (0.001 * t); //旋转0.01弧度 每帧
+            // console.log(cube.rotation.y);
+
+            controls.update();
+
+            // 渲染          场景   相机
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+
+</html>

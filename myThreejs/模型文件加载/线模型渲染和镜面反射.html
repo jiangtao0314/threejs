@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+    <script src="./loaders/FBXLoader.js"></script>
+    <script src="./loaders/GLTFLoader.js"></script>
+    <script src="./loaders/DRACOLoader.js"></script>
+
+    <script src="../js/Reflector.js"></script>
+
+</head>
+
+<style>
+  *{
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<body>
+    <script>
+        //场景
+        const scene = new THREE.Scene();
+        let modelMesh = [];
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100000)
+        camera.position.set(0, 0, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer( { antialias: true } )
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor('white', 1);
+        renderer.setPixelRatio( window.devicePixelRatio );
+        renderer.antualias = true
+        document.body.appendChild(renderer.domElement);
+
+
+        //混合器变量
+        let mixer = null;
+
+
+
+        const loader = new THREE.GLTFLoader();
+        let dracoLoader = new THREE.DRACOLoader();
+        dracoLoader.setDecoderPath( './three/js/libs/draco/gltf/' );
+        loader.setDRACOLoader(dracoLoader);
+
+
+
+        var lineMaterial = new THREE.LineBasicMaterial({
+        // 线的颜色
+        color: "#57d8ff",
+        transparent: true,
+        linewidth: 5,
+        opacity: 1.0,
+        // depthTest: true,
+        });
+        //解决z-flighting
+        lineMaterial.polygonOffset = true;
+        lineMaterial.depthTest = true;
+        lineMaterial.polygonOffsetFactor = 1;
+        lineMaterial.polygonOffsetUnits = 1.0;
+
+        let texture = new THREE.TextureLoader().load('./img/渐变蓝透.png')
+
+        loader.load('./house.gltf',function ( gltf ) {
+        gltf.scene.traverse((item)=>{
+          if(item.material){
+            item.material = new THREE.MeshBasicMaterial({
+              opacity: 1,
+              transparent: true,
+              map:texture,
+            })
+            let edges = new THREE.EdgesGeometry(item.geometry,1);
+            // edges.scale(0.1,0.1,0.1)
+            let lineS= new THREE.LineSegments(edges, lineMaterial);
+            // lineS.rotateY(Math.PI/5);
+            // lineS.position.set(-3000,0,5500)
+            scene.add(lineS); 
+          }
+        })
+        
+		    gltf.animations; // Array<THREE.AnimationClip>
+		    gltf.scene; // THREE.Group
+		    gltf.scenes; // Array<THREE.Group>
+		    gltf.cameras; // Array<THREE.Camera>
+		    gltf.asset; // Object
+
+        gltf.scene.name = 'lou'
+        modelMesh = gltf.scene.children;
+        // console.log(modelMesh);
+		    scene.add( gltf.scene);
+        
+	},
+	function ( xhr ) {
+
+        
+	},
+);
+
+
+
+
+      let floor = new THREE.BoxGeometry(1000,1000);
+      var groundMirror = new THREE.Reflector(floor, {
+          lipBias: 0.003,
+					textureWidth: window.innerWidth * window.devicePixelRatio,
+					textureHeight: window.innerHeight * window.devicePixelRatio,
+          color: 0x889999,
+          recursion: 1
+      });
+			groundMirror.rotateX( - Math.PI / 2 );
+
+      scene.add(groundMirror)
+
+
+      let geometry = new THREE.PlaneGeometry( 1000, 1000 );
+			let verticalMirror = new THREE.Reflector( geometry, {
+				clipBias: 0.003,
+				textureWidth: window.innerWidth * window.devicePixelRatio,
+				textureHeight: window.innerHeight * window.devicePixelRatio,
+				color: 0x889999
+			} );
+			verticalMirror.position.y = 500;
+			verticalMirror.position.z = - 500;
+			scene.add( verticalMirror );
+
+
+        //鼠标操作三维场景
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.maxPolarAngle = Math.PI / 2;
+        controls.minDistance = 600;
+        controls.enablePan = false;
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.8;
+        controls.maxDistance = 2500;
+
+
+
+        	// // 墙体
+        const planeGeo = new THREE.PlaneGeometry( 1000.1, 1000.1 );
+				// const planeTop = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
+				// planeTop.position.y = 100;
+				// planeTop.rotateX( Math.PI / 2 );
+				// scene.add( planeTop );
+
+				const planeBottom = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xffffff } ) );
+				planeBottom.rotateX( - Math.PI / 2 );
+				scene.add( planeBottom );
+
+				const planeFront = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x7f7fff } ) );
+				planeFront.position.z = 500;
+				planeFront.position.y = 500;
+				planeFront.rotateY( Math.PI );
+				scene.add( planeFront );
+
+				const planeRight = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0x00ff00 } ) );
+				planeRight.position.x = 500;
+				planeRight.position.y = 500;
+				planeRight.rotateY( - Math.PI / 2 );
+				scene.add( planeRight );
+
+				const planeLeft = new THREE.Mesh( planeGeo, new THREE.MeshPhongMaterial( { color: 0xff0000 } ) );
+				planeLeft.position.x = - 500;
+				planeLeft.position.y = 500;
+				planeLeft.rotateY( Math.PI / 2 );
+				scene.add( planeLeft );
+
+        // 环境光
+        let ambient = new THREE.AmbientLight(0xffffff);
+        scene.add(ambient)
+
+        const mainLight = new THREE.PointLight( 0xcccccc, 1.5, 250 );
+				mainLight.position.y = 600;
+				scene.add( mainLight );
+
+				const greenLight = new THREE.PointLight( 0x00ff00, 0.25, 1000 );
+				greenLight.position.set( 550, 500, 0 );
+				scene.add( greenLight );
+
+				const redLight = new THREE.PointLight( 0xff0000, 0.25, 1000 );
+				redLight.position.set( - 550, 500, 0 );
+				scene.add( redLight );
+
+				const blueLight = new THREE.PointLight( 0x7f7fff, 0.25, 1000 );
+				blueLight.position.set( 0, 500, 550 );
+				scene.add( blueLight );
+
+        let mouse = {}
+
+      
+        let clock = new THREE.Clock();
+
+        //渲染
+        function animate() {
+            requestAnimationFrame(animate)
+            renderer.render(scene, camera)
+            if (mixer != null) {
+                mixer.update(clock.getDelta())
+            }
+
+        }
+        animate()
+    </script>
+</body>
+
+</html>

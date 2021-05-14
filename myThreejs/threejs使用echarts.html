@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../three.min.js"></script>
+    <script src="../OrbitControls.js"></script>
+    <script src="../stats.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.1.1/dist/echarts.min.js"></script>
+    <style>
+      .btn{
+        position: fixed;
+        right: 200px;
+      }
+    </style>
+</head>
+
+<body>
+
+  <button class="btn">1234</button>
+    <script>
+
+      let btn = document.querySelector('.btn');
+      
+      
+      let name = '办公楼';
+      let todayUseTe = '123';
+      let todayUseWater = '12';
+      let todayUseGas = '22';
+      let name3D = [{
+        name:'安装车间',
+      },{
+        name:'加工车间'
+      },{
+        name:'办公楼'
+      }]
+      let spriteArray = [];
+
+
+        //场景
+        const scene = new THREE.Scene();
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000)
+        camera.position.set(100, 100, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1);
+        document.body.appendChild(renderer.domElement);
+
+        //创建立方体 
+        const geometry = new THREE.BoxGeometry(100, 100, 100);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0x0000ff,
+            specular: 0x4488ee,
+            shininess: 12
+        })
+
+
+        //初始化性能插件
+        var stats;
+          
+        stats = new Stats();
+        document.body.appendChild(stats.dom);
+
+        const geometry2 = new THREE.BoxGeometry(100, 100, 100);
+        const material2 = new THREE.MeshPhongMaterial({
+            color: 0x0000ff,
+            specular: 0x4488ee,
+            shininess: 12
+        })
+        const cube2 = new THREE.Mesh(geometry2, material2)
+        cube2.position.set(200,0,0)
+        cube2.name = '加工车间'
+        scene.add(cube2)
+
+        // 网格模型对象
+        const cube = new THREE.Mesh(geometry, material);
+        cube.name = '办公楼'
+        scene.add(cube)
+
+        //鼠标操作三维场景
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // 环境光
+        let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff)
+        point.position.set(400, 200, 300);
+        scene.add(point)
+
+        
+
+
+    
+
+
+        function createCharts(data,positionx,positiony,positionz,name) {
+
+          let div=document.createElement("div");
+          div.style.width="400px";
+          div.style.height="400px";
+          
+
+          let signChart=echarts.init(div);
+
+      signChart.setOption(optionChart);
+
+      signChart.on('finished',function () {
+          var spriteMap = new THREE.TextureLoader().load(signChart.getDataURL() );//导出图片
+      
+          var spriteMaterial = new THREE.SpriteMaterial({
+              transparent: true,
+              map: spriteMap,
+              side: THREE.DoubleSide
+      });
+
+          var sprite = new THREE.Sprite( spriteMaterial );
+          sprite.scale.set(250, 250, 1)
+          sprite.position.set(positionx, positiony, positionz);
+          sprite.name = name;
+          sprite.visible = false;
+
+          spriteArray.push(sprite)
+
+          scene.add(sprite);
+        })
+      }
+
+      function changeSpritMaterial(){
+        let div=document.createElement("div");
+          div.style.width="400px";
+          div.style.height="400px";
+          
+
+          let signChart=echarts.init(div);
+
+      signChart.setOption(optionChart);
+
+      signChart.on('finished',function () {
+          var spriteMap = new THREE.TextureLoader().load(signChart.getDataURL() );//导出图片
+      
+          var spriteMaterial = new THREE.SpriteMaterial({
+              transparent: true,
+              map: spriteMap,
+              side: THREE.DoubleSide
+      })
+    })
+  }
+  let optionChart = {
+    legend: {},
+    tooltip: {},
+    dataset: {
+        source: [
+            ['qqq', '2012', '2013', '2014', '2015'],
+            ['aaaa', 41.1, 30.4, 65.1, 53.3],
+            ['ssssss', 86.5, 92.1, 85.7, 83.1],
+            ['ddddd', 24.1, 67.2, 79.5, 86.4]
+        ]
+    },
+    xAxis: [
+        {type: 'category', gridIndex: 0},
+        {type: 'category', gridIndex: 1}
+    ],
+    yAxis: [
+        {gridIndex: 0},
+        {gridIndex: 1}
+    ],
+    grid: [
+        {bottom: '55%'},
+        {top: '55%'}
+    ],
+    series: [
+        // These series are in the first grid.
+        {type: 'bar', seriesLayoutBy: 'row'},
+        {type: 'bar', seriesLayoutBy: 'row'},
+        {type: 'bar', seriesLayoutBy: 'row'},
+        // These series are in the second grid.
+        {type: 'bar', xAxisIndex: 1, yAxisIndex: 1},
+        {type: 'bar', xAxisIndex: 1, yAxisIndex: 1},
+        {type: 'bar', xAxisIndex: 1, yAxisIndex: 1},
+        {type: 'bar', xAxisIndex: 1, yAxisIndex: 1}
+    ]
+};
+    for(let i = 0;i<100;i++){
+      createCharts(optionChart,i, 200, 0,'办公楼')
+    } 
+      createCharts(optionChart,0, 200, 0,'办公楼')
+      createCharts(optionChart,200, 200, 0,'加工车间')
+
+      
+      
+        
+        // raycaster点击事件
+        let mouse = {};
+        window.addEventListener('click',(e)=>{
+          mouse.x = (e.clientX/window.innerWidth) * 2 - 1;
+          mouse.y = -(e.clientY/window.innerHeight) * 2 + 1;
+          let raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(mouse,camera);
+          let intersects = raycaster.intersectObjects(scene.children);
+          if(intersects.length > 0){
+            let SELETED = intersects[0].object;
+            let intersected = intersects[0].object;
+            console.log(intersected);
+            spriteArray.forEach((item) =>{
+              if(item.type == 'Sprite'){
+                item.visible = false
+              }
+              if(item.name == intersected.name && item.type == 'Sprite'){
+                item.visible = true
+              }
+            })
+          }else{
+            spriteArray.forEach((item) =>{
+              if(item.type == 'Sprite'){
+                item.visible = false
+              }
+            })
+          }
+          
+        })
+
+
+        btn.addEventListener('click',()=>{
+          spriteArray.forEach(item=>{
+            scene.remove(item)
+            spriteArray.forEach(item=>{})
+            // console.log(scene);
+            item.geometry.dispose();
+            item.material.dispose();
+            item.material = {};
+            item = null;
+          })
+        })
+
+        //渲染
+        function animate(){
+            requestAnimationFrame(animate)
+            renderer.render(scene, camera);
+            stats.update();
+        }
+        animate()
+    </script>
+</body>
+
+</html>

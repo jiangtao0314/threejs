@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - particles - billboards</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+
+		<script type="module">
+
+			import * as THREE from '../build/three.module.js';
+
+			import Stats from './jsm/libs/stats.module.js';
+
+			import { GUI } from './jsm/libs/dat.gui.module.js';
+
+			let camera, scene, renderer, stats, material;
+			let mouseX = 0, mouseY = 0;
+
+			let windowHalfX = window.innerWidth / 2;
+			let windowHalfY = window.innerHeight / 2;
+
+			init();
+			animate();
+
+			function init() {
+
+				//相机
+				camera = new THREE.PerspectiveCamera( 55, window.innerWidth / window.innerHeight, 2, 2000 );
+				camera.position.z = 1000;
+
+
+				scene = new THREE.Scene();
+				// 雾化
+				scene.fog = new THREE.FogExp2( 0x000000, 0.001 );
+
+				const geometry = new THREE.BufferGeometry();
+				const vertices = []; //矩形顶点的集合
+
+				const sprite = new THREE.TextureLoader().load( 'textures/sprites/disc.png' );
+
+				//随机设置顶点坐标系 
+				for ( let i = 0; i < 10000; i ++ ) {
+
+					const x = 2000 * Math.random() - 1000;
+					const y = 2000 * Math.random() - 1000;
+					const z = 2000 * Math.random() - 1000;
+
+					vertices.push( x, y, z );
+
+				}
+																																					//顶点数据添加进来  每个顶点是一个三元组
+				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+																								//大小    指定点的大小是否因相机深度而衰减。（仅限透视摄像头。）默认为true。  使用Texture中的数据设置点的颜色。    alpha贴图是一张灰度纹理，用于控制整个表面的不透明度
+				material = new THREE.PointsMaterial( { size: 35, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
+				// material.color.setHSL( 1.0, 0.3, 0.7 );
+
+				const particles = new THREE.Points( geometry, material );
+				scene.add( particles );
+
+				//
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+
+				//适配移动端手指滑动
+				document.body.style.touchAction = 'none';
+				document.body.addEventListener( 'pointermove', onPointerMove );
+
+
+				//
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			//窗口发生变化事件
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+
+			//
+			function onPointerMove( event ) {
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+
+			}
+
+			//
+
+			function animate() {
+				requestAnimationFrame( animate );
+				render()
+			}
+
+
+			function render() {
+				
+				const time = Date.now() * 0.00005
+
+				camera.position.x += ( mouseX - camera.position.x ) * 0.04;
+				camera.position.y += ( - mouseY - camera.position.y ) * 0.04;
+
+				camera.lookAt( scene.position );
+
+				const h = time  % 2 
+				console.log(h);
+				
+				//动态设置 色相 饱和度  亮度值
+				material.color.setHSL( h, 0.5, 0.5 );
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+    <script src="./loaders/OBJLoader.js"></script>
+    <script src="./loaders/MTLLoader.js"></script>
+
+</head>
+
+<body>
+    <script>
+        //场景
+        const scene = new THREE.Scene();
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 10000)
+        camera.position.set(0, 0, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1);
+        document.body.appendChild(renderer.domElement);
+
+
+        let loader = new THREE.OBJLoader();
+        // OBJ文件加载只加载OBJ文件中的几何信息 不加载材质文件.mtl
+
+
+
+
+        //材质文件加载器
+        let MTLLoader = new THREE.MTLLoader();
+        // mtl文件包含了模型的材质信息  纹理路径 法线贴图 高光贴图 颜色贴图等等
+
+        // MTLLoader.load('./OBJ模型/立方体/box.mtl', function(material) {
+        //     //返回一个包含材质的对象模型MaterialCreatir
+
+        //     //obj模型回合MaterialCreator包含的残值对应起来
+        //     loader.setMaterials(material);
+        //     loader.load('./OBJ模型/立方体/box.obj', function(obj) {
+        //         obj.children[0].geometry.center() //将单个对象放置到中心
+        //         obj.scale.set(10, 10, 10) //放大整个OBJ对象
+        //         scene.add(obj)
+        //     })
+        // })
+
+        MTLLoader.load('./demo2.mtl', function(material) {
+            //返回一个包含材质的对象模型MaterialCreatir
+
+            //obj模型回合MaterialCreator包含的残值对应起来
+            loader.setMaterials(material);
+            loader.load('./demo2.obj', function(obj) {
+                obj.children[0].geometry.center() //将单个对象放置到中心
+                obj.scale.set(10, 10, 10) //放大整个OBJ对象
+                scene.add(obj)
+            })
+        })
+
+
+
+
+        //多个模型
+        // loader.load('./OBJ模型/多个模型/model.obj', function(obj) {
+        //     //没有材质文件时 系统自动设置phong网络材质
+
+        //     obj.children[0].geometry.center(); //网格模型居中
+        //     obj.children[0].scale.set(100, 100, 100); //网格模型几何体缩放
+        //     obj.children[0].position.set(100, 100, 100)
+        //     scene.add(obj)
+        // })
+
+
+
+
+
+
+        // MTLLoader.load('./OBJ模型/贴图/material.mtl', function(material) {
+        //     //返回一个包含材质的对象模型MaterialCreatir
+
+        //     //obj模型回合MaterialCreator包含的残值对应起来
+        //     loader.setMaterials(material);
+        //     loader.load('./OBJ模型/贴图/model.obj', function(obj) {
+        //         obj.children[0].geometry.center() //将单个对象放置到中心
+        //         scene.add(obj)
+        //     })
+        // })
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //鼠标操作三维场景
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // 环境光
+        let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff)
+        point.position.set(400, 200, 300);
+        scene.add(point)
+
+
+
+        //渲染
+        function animate() {
+            requestAnimationFrame(animate)
+            scene.traverse((obj) => {
+                if (obj.name == '2134214531') {
+                    obj.rotation.z += 0.1
+                }
+            })
+            renderer.render(scene, camera)
+
+
+        }
+        animate()
+            // console.log(scene.children);
+    </script>
+</body>
+
+</html>

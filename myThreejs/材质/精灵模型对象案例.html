@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera.position.set(-500, 300, 600);
+        camera.lookAt(scene.position)
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.domElement.setAttribute('class', 'canvas')
+        document.body.appendChild(renderer.domElement)
+
+        let plane = new THREE.PlaneGeometry(1000, 1000)
+        let material1 = new THREE.MeshBasicMaterial({
+            color: 'green',
+            side: THREE.DoubleSide //俩面可见
+        })
+        const cube1 = new THREE.Mesh(plane, material1);
+        cube1.rotateX(Math.PI / 2)
+        scene.add(cube1)
+
+        let controls = new THREE.OrbitControls(camera, renderer.domElement)
+
+
+
+        //精灵模型  树随机设置
+        let texture = new THREE.TextureLoader().load('tree.png');
+
+        //遍历创建多少棵树
+        for (let i = 0; i < 300; i++) {
+            let spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+            });
+            let sprite = new THREE.Sprite(spriteMaterial);
+            scene.add(sprite)
+
+            sprite.scale.set(100, 100, 1); //设置大小
+            let k1 = Math.random() - 0.5;
+            let k2 = Math.random() - 0.5;
+            //X        Y     Z
+            //x轴是树行着的位置  Y轴是树干位置   Z轴是树距离相机的位置
+            sprite.position.set(1000 * k1, 50, 1000 * k2)
+        }
+
+
+        //精灵模型雨滴
+        let rain = new THREE.TextureLoader().load('rain.png')
+            //创建组
+        let group = new THREE.Group();
+
+        //遍历创建多少雨滴
+        for (let i = 0; i < 800; i++) {
+            //精灵材质
+            let a = new THREE.SpriteMaterial({
+                map: rain,
+            })
+            let sprite = new THREE.Sprite(a);
+            //添加进组
+            group.add(sprite);
+
+            sprite.scale.set(8, 10, 1); //设置大小
+            let k1 = Math.random() - 0.5; //随机化X轴
+            let k2 = Math.random(); //随机化Y轴
+            let k3 = Math.random() - 0.5; //随机化Z轴
+            sprite.position.set(1000 * k1, 600 * k2, 1000 * k3) //设置位置
+        }
+        scene.add(group) //组添加进场景
+
+
+        //每帧循环遍历 检查雨滴是否掉落到地面
+        let animate = function() {
+            group.children.forEach((item) => {
+                item.position.y -= 1;
+                if (item.position.y <= 0) {
+                    item.position.y = 600; //掉落到地面就让他返回顶端
+                }
+            })
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera)
+        }
+        animate();
+    </script>
+</body>
+
+</html>

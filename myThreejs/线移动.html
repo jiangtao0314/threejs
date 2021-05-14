@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>动态线汇总</title>
+</head>
+<body>
+</body>
+<script src="../three.min.js"></script>
+<script src="../OrbitControls.js"></script>
+
+<!--import MeshLine-->
+<!-- <script src="../public/plugins/threeLibrary/js/lines/MeshLine.js"></script> -->
+<script>
+
+    //场景
+    const scene = new THREE.Scene();
+    
+
+    //相机
+    const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100000)
+    camera.position.set(0, 20, 20);
+
+    
+  //渲染器
+    const renderer = new THREE.WebGLRenderer()
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0xb9d33f, 1);
+    renderer.setPixelRatio(window.devicePixelRatio * 2)
+    renderer.antualias = true
+    document.body.appendChild(renderer.domElement);
+
+     // 环境光
+     let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0x999999)
+        point.position.set(400, 200, 300);
+        scene.add(point)
+
+         //点光源
+         let point2 = new THREE.PointLight(0x999999)
+        point2.position.set(-400, 200, -300);
+        scene.add(point2)
+
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    let texture = new THREE.TextureLoader().load("./img/green_line.png")
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping; //每个都重复
+  texture.repeat.set(1, 1)
+  texture.needsUpdate = true
+
+  let material = new THREE.MeshBasicMaterial({
+    map: texture,
+    side: THREE.BackSide,
+    transparent: true
+  })
+
+  // 创建顶点数组
+  let points = [new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(10, 0, 0),
+    new THREE.Vector3(10, 0, 10),
+    new THREE.Vector3(0, 0, 10)
+  ]
+
+  // CatmullRomCurve3创建一条平滑的三维样条曲线
+  let curve = new THREE.CatmullRomCurve3(points) // 曲线路径
+
+  // 创建管道
+  let tubeGeometry = new THREE.TubeGeometry(curve, 80, 0.1)
+  
+  let mesh = new THREE.Mesh(tubeGeometry, material);
+
+  scene.add(mesh)
+
+  function animate() {
+	// 一定要在此函数中调用
+    renderer.render(scene, camera)
+    if(texture) texture.offset.x -= 0.01
+    requestAnimationFrame(animate)
+  }
+
+  animate()
+</script>
+</html>

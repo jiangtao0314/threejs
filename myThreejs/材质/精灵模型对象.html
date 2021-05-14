@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <script>
+        //场景
+        const scene = new THREE.Scene();
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000)
+        camera.position.set(10, 10, 20);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1);
+        document.body.appendChild(renderer.domElement);
+
+
+
+
+
+
+        //创建精灵材质对象SpriteMaterial
+        let loader = new THREE.TextureLoader();
+        let texture = loader.load('./cao.png');
+        let SpriteMaterial = new THREE.SpriteMaterial({
+            color: 0xff00ff, //颜色
+            rotation: Math.PI / 4, //旋转3.14/4弧度
+            map: texture, //设置精灵纹理贴图
+        })
+
+        //创建精灵模型对象 不需要几何体Geometry
+        let sprite = new THREE.Sprite(SpriteMaterial);
+        scene.add(sprite);
+        sprite.scale.set(10, 15, 10); //使用Scale设置精灵图大小
+
+
+
+
+        //鼠标操作三维场景
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+
+        // 环境光
+        let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff)
+        point.position.set(400, 200, 300);
+        scene.add(point)
+
+
+
+
+        const animate = function() {
+            requestAnimationFrame(animate);
+
+            // 渲染          场景   相机
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+
+</html>

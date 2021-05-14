@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../three.min.js"></script>
+    <script src="../OrbitControls.js"></script>
+</head>
+
+<body>
+    <script>
+        //场景
+
+        const scene = new THREE.Scene();
+
+        //在切换材质效果时必须要有光源才能显示阴影
+
+        let sun = new THREE.SpotLight('white')
+        scene.add(sun)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff);
+        point.position.set(100, 200, 200) //位置
+        scene.add(point)
+
+        //设置多个光源
+        let point2 = new THREE.PointLight(0xffffff);
+        point2.position.set(-100, -200, -200) //位置
+        scene.add(point2)
+
+        // 环境光   环境光颜色于网络模型的颜色进行RGB乘法计算
+        let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer();;;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        //启动鼠标操作
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        //几何体  长方体
+        const geometry = new THREE.BoxGeometry(100, 100, 100)
+        const material = new THREE.MeshLambertMaterial({
+            color: 'pink'
+        })
+
+        //网格模型对象
+        const cube = new THREE.Mesh(geometry, material)
+        scene.add(cube);
+
+        //辅助坐标系   
+        let axesHelper = new THREE.AxesHelper(140);
+        scene.add(axesHelper)
+
+        //几何体  球体                             半径  精度  精度
+        const geometry2 = new THREE.SphereGeometry(40, 50, 50)
+        const material2 = new THREE.MeshPhongMaterial({
+            color: 'blue',
+            // transparent: true,
+            // opacity: 0.7,
+            // wireframe: true,
+            shininess: 12,
+            specular: 0X4488ee,
+        })
+
+        //网格模型对象
+        const cube2 = new THREE.Mesh(geometry2, material2)
+        cube2.position.set(200, 0, 30) //设置模型对象的xyz轴坐标
+        scene.add(cube2);
+
+
+
+        //渲染场景
+        let animate = function() {
+            requestAnimationFrame(animate);
+            cube.rotation.y += 0.01;
+            cube2.rotation.y += 0.01;
+            renderer.render(scene, camera)
+        }
+        animate()
+    </script>
+</body>
+
+</html>

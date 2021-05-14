@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(100, 100, 200);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x999999, 1)
+        document.body.appendChild(renderer.domElement);
+
+        let ambient = new THREE.AmbientLight(0x444444)
+
+        // //RGB
+        // //创建纹理对象像素数据
+        // let width = 3; //横向纹理个数
+        // let height = 3; //纵向纹理个数890
+        // let size = width * height; //纹理像素总和
+        // let data = new Uint8Array(size * 3); //像素在缓冲区占用空间  每组RGB数据占用3位
+
+        // for (i = 0; i < size * 3; i += 3) {
+        //     data[i] = 255 * Math.random(); //三个数值分别对应 RGB三个
+        //     data[i + 1] = 255 * Math.random();
+        //     data[i + 2] = 255 * Math.random();
+        //     // console.log(data[i + 1]);
+
+        // }
+        // //创建数据纹理对象 RGB格式 THREE,RGBFormat
+        // let texture = new THREE.DataTexture(data, width, height, THREE.RGBFormat);
+        // texture.needsUpdate = true //纹理更新
+
+
+
+
+
+
+        //RGBA
+        //创建纹理对象像素数据
+        let width = 20; //横向纹理个数
+        let height = 20; //纵向纹理个数890
+        let size = width * height; //纹理像素总和
+        let data = new Uint8Array(size * 4); //像素在缓冲区占用空间  每组RGB数据占用3位
+
+        for (i = 0; i < size * 4; i += 4) {
+            data[i] = 255 * Math.random(); //三个数值分别对应 RGB三个
+            data[i + 1] = 255 * Math.random();
+            data[i + 2] = 255 * Math.random();
+            data[i + 3] = 255 * Math.random()
+                // console.log(data[i + 1]);
+
+        }
+        //创建数据纹理对象 RGB格式 THREE,RGBFormat
+        let texture = new THREE.DataTexture(data, width, height, THREE.RGBAFormat);
+        texture.needsUpdate = true //纹理更新
+
+
+
+        let point = new THREE.PointLight(0xffffff);
+        point.position.set(400, 200, 300);
+        scene.add(point, ambient)
+
+        const geometry = new THREE.BoxGeometry(100, 100, 100);
+        const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            transparent: true, //允许透明设置
+        })
+
+        const cube = new THREE.Mesh(geometry, material)
+        scene.add(cube)
+
+
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate()
+
+        let controls = new THREE.OrbitControls(camera, renderer.domElement)
+    </script>
+</body>
+
+</html>

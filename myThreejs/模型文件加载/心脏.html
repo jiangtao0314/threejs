@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+    <script src="./loaders/OBJLoader.js"></script>
+</head>
+
+<body>
+    <script>
+        //场景
+        const scene = new THREE.Scene();
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000)
+        camera.position.set(100, 100, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1);
+        document.body.appendChild(renderer.domElement);
+
+
+        //点光源
+        var point = new THREE.PointLight(0xffffff, 0.3);
+        point.position.set(400, 200, 300); //点光源位置
+        scene.add(point); //点光源添加到场景中
+        // 环境光
+        var ambient = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambient);
+        // 方向光1
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(400, 200, 300);
+        scene.add(directionalLight);
+        // 方向光2
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(-400, -200, -300);
+        scene.add(directionalLight);
+
+
+
+        var loader = new THREE.OBJLoader();
+        let textureLoader = new THREE.TextureLoader();
+        let textureCube = new THREE.CubeTextureLoader();
+        textureCube.setPath('./心脏模型/环境贴图/')
+
+
+        loader.load('./心脏模型/heart/model.obj', function(obj) {
+            //缩放
+            obj.scale.set(10, 10, 10)
+                //居中
+            obj.children[0].geometry.center();
+            scene.add(obj)
+
+
+            //加载贴图
+            let texture = textureLoader.load('./心脏模型/heart/color.png');
+            let textureNormal = textureLoader.load('./心脏模型/heart/normal.png');
+            let textureSpecular = textureLoader.load('./心脏模型/heart/specular.png');
+            let cubeTexture = textureCube.load(['px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg'])
+
+            scene.background = cubeTexture;
+            let material = new THREE.MeshPhongMaterial({
+                map: texture,
+                normalMap: textureNormal,
+                shininess: 100,
+                specular: textureSpecular,
+                specular: 0xffffff,
+                // envMap: cubeTexture,
+            });
+            // 贴图赋值
+            obj.children[0].material = material
+        })
+
+        // 渲染函数
+        function render() {
+            console.log(scene);
+            renderer.render(scene, camera); //执行渲染操作
+            // scene.rotation.y += 0.01
+            requestAnimationFrame(render); //请求再次执行渲染函数render，渲染下一帧
+        }
+        render();
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    </script>
+</body>
+
+</html>

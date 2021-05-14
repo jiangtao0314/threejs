@@ -1,0 +1,79 @@
+<html>
+
+<head>
+    <title>My first three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="../three.min.js"></script>
+    <script>
+        //创建一个新场景
+        const scene = new THREE.Scene();
+
+
+
+        // 视野角度 角度越小 则物体越大  角度越大则物体越小  180都则不显示物体
+        // 当物体某些部分比摄像机的远截面远或者比近截面近的时候，将不会被渲染到场景中。性能
+
+        //创建一个相机  相机使用的是透视相机       视野角度        长宽比                          近截面 远截面
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 100);
+
+
+
+        // 渲染器
+        const renderer = new THREE.WebGLRenderer();
+        // 对于性能比较敏感的应用程序来说，可以使用setSize传入一个较小的值，如window.innerWidth/2和window.innerHeight/2，
+        // 这将使得应用程序在渲染时，以一半的长宽尺寸渲染场景。
+
+        //渲染小图的同时 降低分辨率 在第三个参数中添加false 这样可以以一半分辨率进行渲染
+        // renderer.setSize(window.innerWidth/2, window.innerHeight/2，false);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        renderer.setClearColor(0xb9d3ff, 1) //设置背景颜色
+
+        // renderer（渲染器）的dom元素（renderer.domElement）添加到我们的HTML文档中。
+        // 这就是渲染器用来显示场景给我们看的<canvas>元素
+        document.body.appendChild(renderer.domElement);
+
+
+
+        // 创建立方体
+        // BoxGeometry（ 立方体） 对象.这个对象包含了一个立方体中所有的顶点（ vertices） 和面（ faces）
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        // 设置材质(颜色)
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x00ff00
+        });
+        //设置网格模型对象
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube); //添加到场景中
+
+        // 立方体默认会移动到0，0，0坐标  相机会和立方体重合
+        //此时需要移动相机  正数为靠自己移动  负数为靠电脑移动
+        camera.position.z = 5;
+
+        const animate = function() {
+            // 使在每次屏幕刷新时对场景进行绘制的循环  普遍为60帧/秒
+            // 当用户切换到其它的标签页时，它会暂停 比起setInterval性能更高
+            requestAnimationFrame(animate);
+
+            // 这里的代码每帧都会执行一次  使X轴或Y轴进行旋转效果
+            // cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01; //每帧旋转0.01弧度  弧度 = 180 / 兀 ≈ 57.3度
+            // console.log(cube.rotation.y);
+
+            // 渲染          场景   相机
+            renderer.render(scene, camera);
+        };
+
+        animate();
+        // renderer.render(scene, camera);
+    </script>
+</body>
+
+</html>

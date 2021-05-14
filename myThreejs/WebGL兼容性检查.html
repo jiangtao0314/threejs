@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script src="../three.js/examples/jsm/WebGL.js">
+        // 在渲染之前使用该文件
+
+        if (WEBGL.isWebGLAvailable()) {
+            animation()
+        } else {
+            const warning = WEBGL.geteWebGLErrorMessage();
+            document.getElementById('container').appendChild(warning)
+        }
+    </script>
+</body>
+
+</html>

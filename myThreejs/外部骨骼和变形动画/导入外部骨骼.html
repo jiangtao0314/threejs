@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <button class="btn">暂停</button>
+    <script>
+        let btn = document.querySelector('.btn')
+
+        //场景
+        const scene = new THREE.Scene();
+
+        let group = new THREE.Group();
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000)
+        camera.position.set(100, 100, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        // renderer.setClearColor(0xb9d33f, 1);
+        document.body.appendChild(renderer.domElement);
+
+
+
+
+
+        //加载骨骼动画数据
+        //JSONloader和Objectloader的区别
+        //在解析模型骨骼动画之前 需要线加载外部的三维模型  不需要设置材质？？？？？
+
+
+        //加载器
+        const loader = new THREE.ObjectLoader()
+            //混合器变量
+        let mixer = null;
+        //加载json模型和骨骼动画
+
+        loader.load('./marine_anims_core.json', function(obj) {
+            console.log(obj);
+            //添加
+            scene.add(obj);
+            //从返回的对象中获取骨骼网格模型
+            // let SkinnedMesh = obj.children[0];
+            // console.log(SkinnedMesh.animations);
+
+            // // 骨骼网格模型作为混合器的参数 创建一个混合器
+            // mixer = new THREE.AnimationMixer(SkinnedMesh);
+
+
+            // SkinnedMesh.geometry.animations[1] 为假设存在的obj内的骨骼数据  
+            //解析跑步状态对应剪辑对象clip中的关键帧数据
+            // let AnimationAction = mixer.clipAction(SkinnedMesh)
+
+            // AnimationAction.play()
+
+
+            // //骨骼辅助显示
+            // let skeletonHelper = new THREE.SkeletonHelper(SkinnedMesh)
+            // scene.add(skeletonHelper)
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //鼠标操作三维场景
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // 环境光
+        let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff)
+        point.position.set(400, 200, 300);
+        scene.add(point)
+
+
+        //创建一个时钟对象clock
+        let clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+
+            if (mixer !== null) {
+                // 使用getDelta方法获取两帧的时间间隔
+                mixer.update(clock.getDelta())
+            }
+
+        }
+        animate()
+    </script>
+</body>
+
+</html>

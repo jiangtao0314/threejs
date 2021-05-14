@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 200);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1)
+        document.body.appendChild(renderer.domElement)
+
+        let point = new THREE.AmbientLight({
+            color: 0x999999,
+            intensity: 1,
+        })
+        scene.add(point)
+
+        const geometry = new THREE.BoxGeometry(100, 100, 100); //立方体
+        // const geometry = new THREE.SphereGeometry(80, 100, 100);
+
+
+        //TextureLoader 创建一个纹理加载器对象 可以加载图片作为几何体纹理；
+        let textureLoader = new THREE.TextureLoader();
+
+        //执行Load方法加载纹理贴图成功后返回一个纹理对象Texture  贴图需要有光照
+        let texture = textureLoader.load('./cao.png')
+
+        //======================================================================
+        // 阵列
+        // //设置纹理贴图阵列映射
+        // texture.wrapS = THREE.RepeatWrapping;
+        // texture.wrapT = THREE.RepeatWrapping;
+
+        // //uv两个方向纹理重复数量  横向四个 纵向两个
+        // texture.repeat.set(4, 2)
+
+
+
+
+        //======================================================================
+        //偏移
+        //第一个参数负值向右 正值向左     第二个参数正值向下 负值向上
+        texture.offset = new THREE.Vector2(-0.3, 0.2)
+
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+
+        //uv两个方向纹理重复数量  横向四个 纵向两个
+        texture.repeat.set(4, 3)
+
+
+
+
+
+        //======================================================================
+        //旋转
+        texture.rotation = Math.PI / 4;
+        //设置纹理的旋转中心 默认为0，0
+        texture.center.set(0.5, 0.5);
+
+
+
+
+
+
+
+
+        let material_1 = new THREE.MeshPhongMaterial({
+            color: 'blue'
+        })
+
+        let material_2 = new THREE.MeshPhongMaterial({
+            map: texture
+        })
+
+        //设置材质数组
+        let materialArr = [material_1, material_2, material_2, material_1, material_1, material_1]
+
+        //网格模型
+        let cube = new THREE.Mesh(geometry, materialArr);
+        cube.castShadow = true
+        scene.add(cube);
+
+        function render() {
+            renderer.render(scene, camera);
+            requestAnimationFrame(render)
+            texture.offset.x -= 0.06;
+
+        }
+        render()
+
+
+
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // controls.addEventListener('change', () => {
+        //     renderer.render(scene, camera)
+        // })
+    </script>
+</body>
+
+</html>

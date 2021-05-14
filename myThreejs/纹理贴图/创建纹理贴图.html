@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 200);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1)
+        document.body.appendChild(renderer.domElement)
+
+        let point = new THREE.AmbientLight({
+            color: 0x444444,
+            intensity: 1,
+        })
+        scene.add(point)
+
+
+
+        const geometry = new THREE.BoxGeometry(100, 100, 100); //矩形
+        // const geometry = new THREE.SphereGeometry(80, 100, 100);
+        // const geometry = new THREE.PlaneGeometry(204, 102);
+
+
+
+        // geometry.faceVertexUvs[0].forEach(elem => {
+        //     elem.forEach(Vector2 => {
+        //         Vector2.set(0.4, 0.4)
+        //     })
+        // })
+
+
+        //创建一个平面几何体作为投影面
+        var planeGeometry = new THREE.PlaneBufferGeometry(600, 800);
+        var planeMaterial = new THREE.MeshLambertMaterial({
+            color: 'gray'
+        });
+        // 平面网格模型作为投影面
+        var planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+        scene.add(planeMesh); //网格模型添加到场景中
+        planeMesh.rotateX(-Math.PI / 2); //旋转网格模型
+        planeMesh.position.y = -80; //设置网格模型y坐标
+        // 设置接收阴影的投影面
+        planeMesh.receiveShadow = true;
+
+
+        //TextureLoader 创建一个纹理加载器对象 可以加载图片作为几何体纹理；
+        let textureLoader = new THREE.TextureLoader();
+
+        //执行Load方法加载纹理贴图成功后返回一个纹理对象Texture  贴图需要有光照
+        textureLoader.load('./840.png', (texture) => {
+            // console.log(texture);
+            let material = new THREE.MeshPhongMaterial({
+                map: texture
+            })
+            let cube = new THREE.Mesh(geometry, material);
+            cube.castShadow = true
+            scene.add(cube);
+
+            let light = new THREE.SpotLight({
+                color: 0xffffff,
+            });
+            light.position.set(200, 200, 100);
+            // light.target = cube;
+            // light.angle = Math.PI / 6;
+            light.castShadow = true;
+            //设置阴影最远距离  如果使用默认值 到500的时候会直接切掉
+            light.shadow.camera.far = 1000;
+            scene.add(light)
+
+
+            renderer.render(scene, camera)
+            console.log(geometry);
+        })
+
+        let controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.addEventListener('change', () => {
+            renderer.render(scene, camera)
+        })
+    </script>
+</body>
+
+</html>

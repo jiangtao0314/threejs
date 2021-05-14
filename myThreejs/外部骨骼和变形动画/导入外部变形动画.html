@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="../../three.min.js"></script>
+    <script src="../../OrbitControls.js"></script>
+</head>
+
+<body>
+    <button class="btn">暂停</button>
+    <script>
+        let btn = document.querySelector('.btn')
+
+        //场景
+        const scene = new THREE.Scene();
+
+        let group = new THREE.Group();
+
+        //相机
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 1000)
+        camera.position.set(100, 100, 200);
+
+        //渲染器
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0xb9d33f, 1);
+        document.body.appendChild(renderer.domElement);
+
+
+
+
+
+
+
+
+        //加载器
+        let loader = new THREE.ObjectLoader();
+        //混合器变量
+        let mixer = null;
+
+
+        //加载json模型和骨骼动画
+        loader.load('./flamingo.json', function(geometry) {
+
+            let material = new THREE.MeshPhongMaterial({
+                morphTargets: true, //允许变形
+                //vertexColors设置为THREE.FaceColors，就可以让几何体的每个顶点，使用geometry.faces[i].color中的颜色。
+                //通过“vertexColors: THREE.FaceColors”指定了一个面中4个顶点的颜色，在渲染的时候，面的颜色就取四个顶点的插值，
+                //因为四个顶点的颜色相同，所以面就是纯色的
+                vertexColors: THREE.FaceColors,
+            })
+
+
+            //通过平均面法线来计算顶点法线 效果更光滑
+            geometry.computeVertexNormals();
+            let mesh = new THREE.Mesh(geometry, material);
+            //添加
+            scene.add(mesh);
+
+
+            // 骨骼网格模型作为混合器的参数 创建一个混合器
+            mixer = new THREE.AnimationMixer(mesh);
+
+
+            // geometry.animations[0] 为假设存在的obj内的变形动画数据  
+            //解析跑步状态对应剪辑对象clip中的关键帧数据
+            let AnimationAction = mixer.clipAction(geometry.animations[0])
+
+            AnimationAction.play()
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //鼠标操作三维场景
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        // 环境光
+        let ambient = new THREE.AmbientLight(0x444444);
+        scene.add(ambient)
+
+        //点光源
+        let point = new THREE.PointLight(0xffffff)
+        point.position.set(400, 200, 300);
+        scene.add(point)
+
+
+        //创建一个时钟对象clock
+        let clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+
+            if (mixer !== null) {
+                // 使用getDelta方法获取两帧的时间间隔
+                mixer.update(clock.getDelta())
+            }
+
+        }
+        animate()
+    </script>
+</body>
+
+</html>
